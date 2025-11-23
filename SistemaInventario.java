@@ -1,13 +1,13 @@
-import java.util.Scanner;
+import java.io.*;
 
 // Clase Nodo: representa un producto en el inventario
 class Nodo {
-    int key;           // Código del producto
-    String name;       // Nombre del producto
-    int stock;         // Cantidad disponible
-    Nodo left;         // Hijo izquierdo
-    Nodo right;        // Hijo derecho
-    
+    int key;           
+    String name;       
+    int stock;       
+    Nodo left;       
+    Nodo right;        
+
     // Constructor
     public Nodo(int key, String name, int stock) {
         this.key = key;
@@ -16,43 +16,41 @@ class Nodo {
         this.left = null;
         this.right = null;
     }
-    
+
     // Método para mostrar información del nodo
     public void mostrarInfo() {
         System.out.println("Código: " + key + " | Producto: " + name + " | Stock: " + stock);
     }
 }
 
-// Clase ArbolInventario: maneja el árbol binario de búsqueda
+// Clase ArbolInventario
 class ArbolInventario {
-    Nodo root;  // Raíz del árbol
-    
+    Nodo raiz;  
+
     // Constructor
     public ArbolInventario() {
-        this.root = null;
+        this.raiz = null;
     }
-    
+
     // 1. CREAR NODO
     public Nodo crearNodo(int key, String name, int stock) {
         return new Nodo(key, name, stock);
     }
-    
+
     // 2. INSERTAR NODO
     public void insertarNodo(int key, String name, int stock) {
         Nodo nuevoNodo = crearNodo(key, name, stock);
-        
-        if (root == null) {
-            root = nuevoNodo;
+        if (raiz == null) {
+            raiz = nuevoNodo;
             System.out.println("Producto insertado como raíz");
         } else {
-            insertarRecursivo(root, nuevoNodo);
+            insertarRecursivo(raiz, nuevoNodo);
         }
     }
-    
+
     // Método auxiliar para insertar recursivamente
     private void insertarRecursivo(Nodo actual, Nodo nuevoNodo) {
         if (nuevoNodo.key < actual.key) {
-            // Ir a la izquierda
             if (actual.left == null) {
                 actual.left = nuevoNodo;
                 System.out.println("Producto insertado exitosamente");
@@ -60,7 +58,6 @@ class ArbolInventario {
                 insertarRecursivo(actual.left, nuevoNodo);
             }
         } else if (nuevoNodo.key > actual.key) {
-            // Ir a la derecha
             if (actual.right == null) {
                 actual.right = nuevoNodo;
                 System.out.println("Producto insertado exitosamente");
@@ -71,18 +68,17 @@ class ArbolInventario {
             System.out.println("Error: Ya existe un producto con código " + nuevoNodo.key);
         }
     }
-    
+
     // BUSCAR NODO
     public Nodo buscarNodo(int key) {
-        return buscarRecursivo(root, key);
+        return buscarRecursivo(raiz, key);
     }
-    
+
     // Método auxiliar para buscar recursivamente
     private Nodo buscarRecursivo(Nodo actual, int key) {
         if (actual == null) {
             return null;
         }
-        
         if (key == actual.key) {
             return actual;
         } else if (key < actual.key) {
@@ -91,84 +87,66 @@ class ArbolInventario {
             return buscarRecursivo(actual.right, key);
         }
     }
-    
+
     // 3. EDITAR NODO
     public void editarNodo(int key, String nuevoNombre, int nuevoStock) {
         Nodo nodo = buscarNodo(key);
-        
         if (nodo == null) {
             System.out.println("Error: No se encontró producto con código " + key);
             return;
         }
-        
-        System.out.println("\n--- Datos Actuales ---");
+        System.out.println("\n~   Datos Actuales ~");
         nodo.mostrarInfo();
-        
         if (nuevoNombre != null && !nuevoNombre.isEmpty()) {
             nodo.name = nuevoNombre;
         }
         if (nuevoStock >= 0) {
             nodo.stock = nuevoStock;
         }
-        
-        System.out.println("\n--- Datos Actualizados ---");
+        System.out.println("\n--  Datos Actualizados  --");
         nodo.mostrarInfo();
         System.out.println("Producto editado exitosamente");
     }
-    
+
     // 4. ELIMINAR NODO
     public void eliminarNodo(int key) {
-        root = eliminarRecursivo(root, key);
+        raiz = eliminarRecursivo(raiz, key);
     }
-    
+
     // Método auxiliar para eliminar recursivamente
     private Nodo eliminarRecursivo(Nodo actual, int key) {
         if (actual == null) {
             System.out.println("Error: No se encontró producto con código " + key);
             return null;
         }
-        
-        // Buscar el nodo
+
         if (key < actual.key) {
             actual.left = eliminarRecursivo(actual.left, key);
         } else if (key > actual.key) {
             actual.right = eliminarRecursivo(actual.right, key);
         } else {
-            // Nodo encontrado
-            
-            // Caso 1: Nodo sin hijos
             if (actual.left == null && actual.right == null) {
-                System.out.println("Producto eliminado (sin hijos)");
+                System.out.println("Producto eliminado");
                 return null;
             }
-            
-            // Caso 2: Nodo con un solo hijo
             if (actual.left == null) {
-                System.out.println("Producto eliminado (un hijo derecho)");
+                System.out.println("Producto eliminado");
                 return actual.right;
             }
             if (actual.right == null) {
-                System.out.println("Producto eliminado (un hijo izquierdo)");
+                System.out.println("Producto eliminado");
                 return actual.left;
             }
-            
-            // Caso 3: Nodo con dos hijos
-            // Encontrar el sucesor inorden (menor del subárbol derecho)
             Nodo sucesor = encontrarMinimo(actual.right);
-            
-            // Copiar datos del sucesor
             actual.key = sucesor.key;
             actual.name = sucesor.name;
             actual.stock = sucesor.stock;
-            
-            // Eliminar el sucesor
             actual.right = eliminarRecursivo(actual.right, sucesor.key);
-            System.out.println("Producto eliminado (dos hijos)");
+            System.out.println("Producto eliminado");
         }
-        
         return actual;
     }
-    
+
     // Encontrar el nodo con valor mínimo
     private Nodo encontrarMinimo(Nodo nodo) {
         while (nodo.left != null) {
@@ -176,17 +154,17 @@ class ArbolInventario {
         }
         return nodo;
     }
-    
-    // 5. RECORRIDO INORDEN (Izquierda - Raíz - Derecha)
+
+    // 5. RECORRIDO INORDEN
     public void recorridoInorden() {
-        System.out.println("\n=== RECORRIDO INORDEN (Inventario Ordenado) ===");
-        if (root == null) {
+        System.out.println("\n--- Recorrido InOrden (Inventario Ordenado) ---");
+        if (raiz == null) {
             System.out.println("El inventario está vacío");
         } else {
-            inordenRecursivo(root);
+            inordenRecursivo(raiz);
         }
     }
-    
+
     private void inordenRecursivo(Nodo nodo) {
         if (nodo != null) {
             inordenRecursivo(nodo.left);
@@ -194,17 +172,17 @@ class ArbolInventario {
             inordenRecursivo(nodo.right);
         }
     }
-    
-    // RECORRIDO PREORDEN (Raíz - Izquierda - Derecha)
+
+    // RECORRIDO PREORDEN
     public void recorridoPreorden() {
         System.out.println("\n=== RECORRIDO PREORDEN ===");
-        if (root == null) {
+        if (raiz == null) {
             System.out.println("El inventario está vacío");
         } else {
-            preordenRecursivo(root);
+            preordenRecursivo(raiz);
         }
     }
-    
+
     private void preordenRecursivo(Nodo nodo) {
         if (nodo != null) {
             nodo.mostrarInfo();
@@ -212,17 +190,17 @@ class ArbolInventario {
             preordenRecursivo(nodo.right);
         }
     }
-    
-    // RECORRIDO POSTORDEN (Izquierda - Derecha - Raíz)
+
+    // RECORRIDO POSTORDEN
     public void recorridoPostorden() {
-        System.out.println("\n=== RECORRIDO POSTORDEN ===");
-        if (root == null) {
+        System.out.println("\n--- Recorrido PosOrden ---");
+        if (raiz == null) {
             System.out.println("El inventario está vacío");
         } else {
-            postordenRecursivo(root);
+            postordenRecursivo(raiz);
         }
     }
-    
+
     private void postordenRecursivo(Nodo nodo) {
         if (nodo != null) {
             postordenRecursivo(nodo.left);
@@ -234,11 +212,9 @@ class ArbolInventario {
 
 // Clase principal con el menú
 public class SistemaInventario {
-    
     public static void mostrarMenu() {
-        System.out.println("\n==================================================");
-        System.out.println("       SISTEMA DE GESTIÓN DE INVENTARIO");
-        System.out.println("==================================================");
+        System.out.println("\n Sistema de Gestion de Inventario");
+        System.out.println("-----------------------------------------");
         System.out.println("1. Agregar producto");
         System.out.println("2. Buscar producto");
         System.out.println("3. Editar producto");
@@ -248,11 +224,10 @@ public class SistemaInventario {
         System.out.println("7. Ver recorrido Postorden");
         System.out.println("8. Cargar datos de prueba");
         System.out.println("9. Salir");
-        System.out.println("==================================================");
     }
-    
+
     public static void cargarDatosPrueba(ArbolInventario arbol) {
-        System.out.println("\n--- Cargando datos de prueba ---");
+        System.out.println("\n  Cargando datos de prueba ");
         arbol.insertarNodo(50, "Laptop HP", 15);
         arbol.insertarNodo(30, "Mouse Logitech", 80);
         arbol.insertarNodo(70, "Monitor Samsung", 25);
@@ -262,40 +237,36 @@ public class SistemaInventario {
         arbol.insertarNodo(80, "Impresora Epson", 10);
         System.out.println("\nDatos de prueba cargados exitosamente");
     }
-    
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         ArbolInventario arbol = new ArbolInventario();
-        
+        String aux;
+
         while (true) {
             mostrarMenu();
             System.out.print("\nSeleccione una opción: ");
-            
             int opcion = 0;
             try {
-                opcion = scanner.nextInt();
-                scanner.nextLine(); // Limpiar buffer
-            } catch (Exception e) {
-                System.out.println("Error: Ingrese un número válido");
-                scanner.nextLine(); // Limpiar buffer
+                aux = br.readLine();
+                opcion = Integer.parseInt(aux);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: El número no es válido");
                 continue;
             }
-            
+
             switch (opcion) {
                 case 1: // Agregar producto
-                    System.out.println("\n--- AGREGAR PRODUCTO ---");
+                    System.out.println("\n--- Agregar Producto ---");
                     try {
                         System.out.print("Ingrese código del producto: ");
-                        int codigo = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int codigo = Integer.parseInt(aux);
                         System.out.print("Ingrese nombre del producto: ");
-                        String nombre = scanner.nextLine();
-                        
+                        String nombre = br.readLine();
                         System.out.print("Ingrese cantidad en stock: ");
-                        int stock = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int stock = Integer.parseInt(aux);
                         if (nombre.isEmpty()) {
                             System.out.println("Error: El nombre no puede estar vacío");
                             break;
@@ -304,21 +275,18 @@ public class SistemaInventario {
                             System.out.println("Error: El stock no puede ser negativo");
                             break;
                         }
-                        
                         arbol.insertarNodo(codigo, nombre, stock);
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         System.out.println("Error: Ingrese datos válidos");
-                        scanner.nextLine();
                     }
                     break;
-                
+
                 case 2: // Buscar producto
-                    System.out.println("\n--- BUSCAR PRODUCTO ---");
+                    System.out.println("\n--- Buscar Producto ---");
                     try {
                         System.out.print("Ingrese código del producto: ");
-                        int codigo = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int codigo = Integer.parseInt(aux);
                         Nodo nodo = arbol.buscarNodo(codigo);
                         if (nodo != null) {
                             System.out.println("\nProducto encontrado:");
@@ -326,74 +294,66 @@ public class SistemaInventario {
                         } else {
                             System.out.println("No se encontró producto con código " + codigo);
                         }
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         System.out.println("Error: Ingrese un código válido");
-                        scanner.nextLine();
                     }
                     break;
-                
+
                 case 3: // Editar producto
-                    System.out.println("\n--- EDITAR PRODUCTO ---");
+                    System.out.println("\n--- Editar Producto ---");
                     try {
                         System.out.print("Ingrese código del producto a editar: ");
-                        int codigo = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int codigo = Integer.parseInt(aux);
                         Nodo nodo = arbol.buscarNodo(codigo);
                         if (nodo == null) {
                             System.out.println("No se encontró producto con código " + codigo);
                             break;
                         }
-                        
                         System.out.print("Ingrese nuevo nombre (Enter para mantener actual): ");
-                        String nuevoNombre = scanner.nextLine();
-                        
+                        String nuevoNombre = br.readLine();
                         System.out.print("Ingrese nuevo stock (-1 para mantener actual): ");
-                        int nuevoStock = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int nuevoStock = Integer.parseInt(aux);
                         arbol.editarNodo(codigo, nuevoNombre, nuevoStock);
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         System.out.println("Error: Ingrese datos válidos");
-                        scanner.nextLine();
                     }
                     break;
-                
+
                 case 4: // Eliminar producto
-                    System.out.println("\n--- ELIMINAR PRODUCTO ---");
+                    System.out.println("\n--- Eliminar Producto ---");
                     try {
                         System.out.print("Ingrese código del producto a eliminar: ");
-                        int codigo = scanner.nextInt();
-                        scanner.nextLine();
-                        
+                        aux = br.readLine();
+                        int codigo = Integer.parseInt(aux);
                         arbol.eliminarNodo(codigo);
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         System.out.println("Error: Ingrese un código válido");
-                        scanner.nextLine();
                     }
                     break;
-                
-                case 5: // Ver inventario ordenado (Inorden)
+
+                case 5: // Ver inventario ordenado
                     arbol.recorridoInorden();
                     break;
-                
+
                 case 6: // Ver recorrido Preorden
                     arbol.recorridoPreorden();
                     break;
-                
+
                 case 7: // Ver recorrido Postorden
                     arbol.recorridoPostorden();
                     break;
-                
+
                 case 8: // Cargar datos de prueba
                     cargarDatosPrueba(arbol);
                     break;
-                
+
                 case 9: // Salir
                     System.out.println("\nGracias por usar el sistema. ¡Hasta pronto!");
-                    scanner.close();
+                    br.close();
                     return;
-                
+
                 default:
                     System.out.println("Opción inválida. Intente nuevamente.");
             }
